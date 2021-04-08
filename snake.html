@@ -1,0 +1,168 @@
+<html>
+<style>
+    body {
+        text-align: center;
+    }
+
+    #score {
+        font-size: 50px;
+    }
+</style>
+
+<body>
+    <h1>Score<div id="score">0</div>
+    </h1>
+    <canvas id="canvas" width="400" height="400"></canvas>
+</body>
+
+<script>
+    var nilai = document.getElementById("score");
+    var n;
+
+    var canvas = document.getElementById("canvas");
+    var cvs = canvas.getContext("2d");
+
+    var lebar = canvas.offsetWidth;
+    var tinggi = canvas.offsetHeight;
+
+    var cell = 10;
+    var ular;
+
+    var tekan;
+    var makanan;
+
+    mulai();
+
+    function mulai() {
+        tekan = "kanan";
+        buat_makanan();
+        buat_ular();
+        n = 0;
+        nilai.innerHTML = n;
+
+
+        if (typeof game != "undefined") {
+            clearInterval(game);
+        }
+
+        game = setInterval(sistem, 100)
+    }
+
+    function buat_ular() {
+        var panjang = 10;
+        ular = [];
+        for (var i = panjang - 1; i >= 0; i--) {
+            //membuat ular horizontal mulai dari arah kiri
+            ular.push({
+                x: i,
+                y: 0
+            });
+
+
+        }
+    }
+
+    function buat_makanan() {
+        makanan = {
+            x: Math.floor(Math.random() * (lebar - cell) / cell),
+            y: Math.floor(Math.random() * (tinggi - cell) / cell)
+            // x: 5,
+            // y: 0
+        };
+    }
+
+    function sistem() {
+
+        cvs.fillStyle = "#fff";
+        cvs.fillRect(0, 0, lebar, tinggi);
+        cvs.strokeStyle = "#555555";
+        cvs.strokeRect(0, 0, lebar, tinggi);
+
+
+        var kx = ular[0].x;
+        var ky = ular[0].y;
+
+
+
+        if (tekan == "kanan") kx++;
+        else if (tekan == "kiri") kx--;
+        else if (tekan == "atas") ky--;
+        else if (tekan == "bawah") ky++;
+
+        if (kx == -1 || kx == lebar / cell ||
+            ky == -1 || ky == tinggi / cell ||
+            tabrakan(kx, ky, ular)) {
+            alert("Tamat. Nilai anda : " + n);
+            mulai();
+
+            return;
+            //console.log('mulai')
+        }
+
+
+        if (kx == makanan.x && ky == makanan.y) {
+            var ekor = {
+                x: kx,
+                y: ky
+            };
+            n = n + 100;
+            nilai.innerHTML = n;
+            buat_makanan();
+        } else {
+            var ekor = ular.pop();
+            ekor.y = ky;
+            ekor.x = kx;
+        }
+
+        ular.unshift(ekor);
+
+        for (var i = 0; i < ular.length; i++) {
+            var a = ular[i];
+            warna_ular(a.x, a.y);
+            // cvs.fillStyle = "#555";
+            // cvs.fillRect(a.x * cell, a.y * cell, cell, cell);
+            // cvs.strokeStyle = "#fff";
+            // cvs.strokeRect(a.x * cell, a.y * cell, cell, cell);
+        }
+
+        warna_makanan(makanan.x, makanan.y);
+    }
+
+
+
+    function warna_makanan(x, y) {
+        cvs.fillStyle = "#800000";
+        cvs.fillRect(x * cell, y * cell, cell, cell);
+    }
+
+    function warna_ular(x, y) {
+        cvs.fillStyle = "#555";
+        cvs.fillRect(x * cell, y * cell, cell, cell);
+        cvs.strokeStyle = "#fff";
+        cvs.strokeRect(x * cell, y * cell, cell, cell);
+    }
+
+    function tabrakan(x, y, array) {
+        for (var i = 0; i < array.length; i++) {
+            if (x == array[i].x && y == array[i].y) {
+                // console.log("true= ", array[i], x, y)
+                return true;
+            }
+            // console.log(array[i], x, y)
+
+        }
+        return false;
+
+    }
+
+    document.onkeydown = function(event) {
+        key = event.keyCode;
+        if (key == 37 && tekan != "kanan") tekan = "kiri";
+        else if (key == 38 && tekan != "bawah") tekan = "atas";
+        else if (key == 39 && tekan != "kiri") tekan = "kanan";
+        else if (key == 40 && tekan != "atas") tekan = "bawah";
+
+    };
+</script>
+
+</html>
